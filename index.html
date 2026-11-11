@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fanfare – Turn followers into income</title>
+<meta name="description" content="One page where fans subscribe, message you, join your live shows and brands book you.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root { --paper: #F4F4F2; --ink: #111; --blue: #0033FF; --pink: #FF7AD1; --orange: #FF5A00; --yellow: #FFE28A; --red: #F0452E;
+          --pad: clamp(1.25rem, 3vw, 2.5rem); }
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; scrollbar-color: var(--blue) var(--paper); }
+  body { font: 400 1.125rem/1.4 Archivo, system-ui, sans-serif; background: var(--paper); color: var(--ink); overflow-x: clip; caret-color: var(--blue); }
+  ::selection { background: var(--blue); color: #fff; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+  a { color: inherit; }
+  ul, ol { list-style: none; padding: 0; }
+
+  /* two voices: compressed grotesque + condensed serif */
+  .g { font: 900 1em/1 Archivo, sans-serif; font-stretch: 62%; letter-spacing: -.035em; word-spacing: .14em; text-transform: uppercase; }
+  .s { font: 400 1em/1 "Instrument Serif", serif; letter-spacing: -.03em; }
+  .mega { font-size: clamp(3.1rem, 11.6vw, 11.5rem); line-height: .84; text-align: center; }
+  .mega .s { text-transform: uppercase; font-size: 1.06em; }
+  .big { font-size: clamp(3rem, 8.2vw, 7.75rem); line-height: .84; text-align: center; }
+  .big .s { text-transform: uppercase; font-size: 1.06em; }
+  .lead { font: 400 clamp(1.6rem, 3.2vw, 2.9rem)/1 "Instrument Serif", serif; letter-spacing: -.03em; text-align: center; }
+
+  /* split arrow button */
+  .btn { display: inline-flex; gap: 2px; text-decoration: none; border: 0; padding: 0; background: none; cursor: pointer; color: #fff; }
+  .btn > * { background: var(--c, var(--blue)); display: grid; place-items: center; height: 3rem; transition: transform .25s cubic-bezier(.16, 1, .3, 1); }
+  .btn i { width: 3rem; } .btn svg { width: 1.1rem; }
+  .btn b { padding: 0 1rem; font: 900 1.05rem/1 Archivo, sans-serif; font-stretch: 62%; letter-spacing: -.03em; text-transform: uppercase; }
+  .btn:hover i { transform: translateX(-4px); } .btn:hover b { transform: translateX(4px); }
+  .btn.dark { color: var(--ink); }
+
+  /* ---- header ---- */
+  header { position: fixed; inset: 0 0 auto; z-index: 5; display: flex; justify-content: space-between; align-items: flex-start;
+           padding: 1.6rem var(--pad) 0; pointer-events: none; }
+  header > * { pointer-events: auto; }
+  .logo { position: fixed; z-index: 6; top: 1.5rem; left: var(--pad); font: italic 400 2.6rem/1 "Instrument Serif", serif; letter-spacing: -.04em; color: var(--blue); text-decoration: none; transform: rotate(-6deg); mix-blend-mode: difference; color: #FFCC00; }
+  .box { background: #fff; display: flex; gap: 1.4rem; padding: .95rem 1.2rem .85rem; font: 900 .95rem/1 Archivo, sans-serif; font-stretch: 68%;
+         letter-spacing: -.02em; text-transform: uppercase; }
+  .box a { text-decoration: none; } .box a:hover { color: var(--blue); }
+  nav.box { position: absolute; left: 50%; transform: translateX(-50%); }
+  .dot::before { content: ""; display: inline-block; width: .5em; height: .5em; border-radius: 50%; background: var(--blue); margin-right: .45em; vertical-align: .08em; }
+
+  /* ---- hero ---- */
+  .hero { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 7rem var(--pad) 0; }
+  .hero .lead { margin-bottom: 1.2rem; }
+  .more { display: inline-flex; align-items: center; gap: .6rem; margin-top: 2.2rem; text-decoration: none; font: 400 1.9rem/1 "Instrument Serif", serif; letter-spacing: -.03em; }
+  .more span { background: no-repeat bottom / 100% 12px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 12' preserveAspectRatio='none'%3E%3Cpath d='M2 4C40 1 80 1 118 3M6 8c10 3 22 3 34-1' fill='none' stroke='%230033FF' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E"); padding-bottom: 12px; }
+  .more i { width: 1.75rem; height: 1.75rem; background: var(--blue); display: grid; place-items: center; margin-bottom: 12px; }
+  .more svg { width: .9rem; transform: rotate(90deg); color: #fff; }
+
+  .ticker { align-self: stretch; margin: auto calc(-1 * var(--pad)) 0; padding: 3rem 0 2.5rem; overflow: hidden; color: var(--blue); }
+  .ticker ul { display: flex; width: max-content; animation: slide 40s linear infinite; }
+  .ticker li { font: 900 clamp(1.6rem, 3vw, 2.5rem)/1 Archivo, sans-serif; font-stretch: 62%; letter-spacing: -.03em; text-transform: uppercase; padding: 0 2.2rem; white-space: nowrap; }
+  .ticker li:nth-child(even) { font: italic 400 clamp(1.8rem, 3.3vw, 2.8rem)/1 "Instrument Serif", serif; text-transform: none; }
+  @keyframes slide { to { transform: translateX(-50%); } }
+
+  /* ---- about: tilted prints + sticker ---- */
+  .about { display: grid; grid-template-columns: 1.1fr 1fr; gap: 3rem; align-items: center; padding: clamp(5rem, 11vw, 10rem) var(--pad); }
+  .prints { position: relative; aspect-ratio: 1 / .92; max-width: 46rem; }
+  .print { position: absolute; background: #fff; padding: 2.4% 2.4% 9%; box-shadow: 0 18px 40px -22px #0006; }
+  .print svg { display: block; width: 100%; }
+  .print.a { width: 62%; left: 3%; top: 0; transform: rotate(-4deg); }
+  .print.b { width: 44%; right: 2%; bottom: 0; transform: rotate(5deg); }
+  .sticker { position: absolute; left: 47%; top: 34%; z-index: 1; transform: rotate(-9deg); background: var(--pink); padding: .5rem 1rem .35rem; font-size: clamp(1.8rem, 4.4vw, 4rem); line-height: .8;
+             box-shadow: 0 10px 20px -12px #0008; transition: transform .4s cubic-bezier(.16, 1, .3, 1); }
+  .prints:hover .sticker { transform: rotate(4deg) scale(1.06); }
+  .copy { text-align: center; }
+  .copy .big { font-size: clamp(2.6rem, 6.3vw, 6rem); margin: .4rem 0 1.4rem; }
+  .copy p:not(.lead) { max-width: 28ch; margin: 0 auto 1.6rem; font-size: 1.3rem; line-height: 1.3; letter-spacing: -.02em; text-wrap: balance; }
+
+  /* ---- how: dark, stacking deck ---- */
+  .how { background: var(--ink); color: var(--paper); padding: clamp(5rem, 10vw, 9rem) var(--pad); position: relative; text-align: center; }
+  .how .lead { max-width: 16ch; margin: 0 auto .6rem; }
+  .deck { max-width: 54rem; margin: 2.5rem auto 3rem; }
+  .deck li { position: sticky; top: calc(7rem + var(--i) * 1.7rem); border: 1.1rem solid var(--c); background: #1c1c1c; min-height: min(56vh, 30rem);
+             display: grid; align-content: end; justify-items: center; gap: .5rem; padding: 2rem 1.5rem 1.6rem; margin-bottom: 2rem; }
+  .deck .num { position: absolute; top: .2rem; left: 1.2rem; font: 400 clamp(5rem, 14vw, 11rem)/1 "Instrument Serif", serif; color: var(--c); }
+  .deck h3 { font-size: clamp(2.4rem, 6.4vw, 5.25rem); }
+  .deck p { font: 400 clamp(1.3rem, 2.2vw, 1.75rem)/1.05 "Instrument Serif", serif; max-width: 26ch; }
+  .badge { position: absolute; right: var(--pad); bottom: 2rem; width: clamp(6rem, 10vw, 9rem); animation: spin 22s linear infinite; }
+  .badge text { font: 900 15.5px Archivo, sans-serif; letter-spacing: .06em; }
+  @keyframes spin { to { transform: rotate(1turn); } }
+
+  /* ---- ways: tilted colour cards ---- */
+  .ways { padding: clamp(5rem, 10vw, 9rem) var(--pad); }
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); max-width: 86rem; margin: 3.5rem auto 0; }
+  .cards li { background: var(--c); color: var(--t, #fff); padding: 1.3rem 1.3rem 1.8rem; text-align: center; transform: rotate(var(--r));
+              margin: var(--y) -.4rem 0; transition: transform .45s cubic-bezier(.16, 1, .3, 1); position: relative; }
+  .cards li:hover { transform: rotate(0) translateY(-.8rem); z-index: 1; }
+  .cards svg { display: block; width: 100%; margin-bottom: 1.1rem; }
+  .cards h3 { font-size: clamp(2rem, 3.9vw, 3.9rem); }
+  .cards p { font: 400 clamp(1.2rem, 1.75vw, 1.6rem)/1 "Instrument Serif", serif; letter-spacing: -.02em; margin-top: .35rem; text-wrap: balance; }
+
+  /* ---- register: drenched blue ---- */
+  .join { background: var(--blue); color: #fff; padding: clamp(5rem, 10vw, 9rem) var(--pad); }
+  .join ::selection { background: #fff; color: var(--blue); }
+  .join :focus-visible { outline-color: var(--yellow); }
+  .join .note { text-align: center; max-width: 34ch; margin: 1.4rem auto 0; font-size: 1.15rem; }
+  form { max-width: 34rem; margin: 3rem auto 0; display: grid; gap: 1rem; }
+  label { display: grid; gap: .4rem; font: 900 1rem/1 Archivo, sans-serif; font-stretch: 68%; text-transform: uppercase; }
+  label small { font: 400 1.05rem/1 "Instrument Serif", serif; text-transform: none; }
+  input { font: 400 1.1rem/1 Archivo, sans-serif; color: var(--ink); background: #fff; border: 0; border-radius: 0; padding: 1rem; width: 100%; }
+  .phone { display: grid; grid-template-columns: 5.5rem 1fr; gap: 2px; }
+  form .btn { justify-self: center; margin-top: .6rem; }
+  form output { text-align: center; min-height: 1.4em; font-weight: 700; }
+  .fine { text-align: center; font-size: .95rem; }
+  .facts { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem 2.5rem; margin-top: 2.5rem; font-size: 1rem; }
+  .facts dt { display: inline; font-weight: 900; font-stretch: 68%; text-transform: uppercase; } .facts dd { display: inline; margin: 0; }
+
+  footer { background: var(--ink); color: var(--paper); padding: 2.5rem var(--pad); display: flex; flex-wrap: wrap; gap: 1rem 2.5rem; justify-content: space-between; font-size: .95rem; }
+  footer a { margin-right: 1.25rem; }
+
+  @media (max-width: 860px) {
+    nav.box { display: none; }
+    .logo { font-size: 2.1rem; }
+    .about { grid-template-columns: 1fr; }
+    .cards { grid-template-columns: 1fr 1fr; gap: 1rem 0; }
+    .cards li { margin-top: 0; }
+    .deck li { border-width: .7rem; }
+  }
+  @media (max-width: 480px) { .cards { grid-template-columns: 1fr; max-width: 20rem; } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<!--
+THESIS: A creator platform that looks like a studio's own poster wall, not a software product. Refuses the feature-grid SaaS page.
+OWN-WORLD: User-pinned look (extrafazant.nl as reference): off-white paper, black ink, electric blue; pink, orange, yellow and red as print colours. Two voices set against each other: compressed heavy grotesque caps and a condensed serif. Tilted white-bordered prints, thick colour frames, stickers, split arrow buttons, boxed nav.
+STORY: Visitor reads the offer in one poster line, sees how it works, registers.
+FIRST VIEWPORT: Centred serif line over a giant two-line headline; blue ticker of creator types along the bottom; boxed nav and Register fixed on top.
+FORM: brief-pinned by the user; earlier seed c7ba502f superseded.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+-->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="arrow" viewBox="0 0 16 16"><path d="M1 8h13M9 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.2"/></symbol></svg>
+
+<a class="logo" href="#">Fanfare</a>
+<header>
+  <span></span>
+  <nav class="box"><a href="#about">About</a><a href="#how">How it works</a><a href="#ways">Ways to earn</a></nav>
+  <div class="box"><a class="dot" href="#register">Register</a></div>
+</header>
+
+<main>
+<section class="hero">
+  <p class="lead">Subscriptions, messages<br>&amp; live shows</p>
+  <h1 class="mega"><span class="g">Turn followers</span><br><span class="g">into</span> <span class="s">income</span></h1>
+  <a class="more" href="#about"><span>Find out how</span><i><svg><use href="#arrow"/></svg></i></a>
+  <div class="ticker">
+    <ul>
+      <li>Gamers</li><li>Musicians</li><li>Trainers</li><li>Photographers</li><li>Artists</li><li>Educators</li><li>Podcasters</li><li>Streamers</li><li>Cooks</li><li>Writers</li>
+      <li aria-hidden="true">Gamers</li><li aria-hidden="true">Musicians</li><li aria-hidden="true">Trainers</li><li aria-hidden="true">Photographers</li><li aria-hidden="true">Artists</li><li aria-hidden="true">Educators</li><li aria-hidden="true">Podcasters</li><li aria-hidden="true">Streamers</li><li aria-hidden="true">Cooks</li><li aria-hidden="true">Writers</li>
+    </ul>
+  </div>
+</section>
+
+<section class="about" id="about">
+  <div class="prints">
+    <!-- Placeholder artwork: replace both prints with real photos of your creators -->
+    <div class="print a"><svg viewBox="0 0 400 480" role="img" aria-label="Illustration of a creator's page on a phone">
+      <rect width="400" height="480" fill="#0033FF"/><circle cx="330" cy="70" r="120" fill="#FF5A00"/><rect x="-40" y="360" width="240" height="200" fill="#FFE28A" transform="rotate(-12 80 460)"/>
+      <rect x="105" y="60" width="190" height="370" rx="26" fill="#111"/><rect x="115" y="70" width="170" height="350" rx="18" fill="#F4F4F2"/>
+      <circle cx="200" cy="130" r="34" fill="#FF7AD1"/><rect x="150" y="178" width="100" height="12" fill="#111"/><rect x="165" y="198" width="70" height="8" fill="#999"/>
+      <rect x="135" y="224" width="130" height="34" fill="#0033FF"/><rect x="170" y="237" width="60" height="8" fill="#fff"/>
+      <rect x="135" y="274" width="62" height="62" fill="#111"/><rect x="203" y="274" width="62" height="62" fill="#FF5A00"/><rect x="135" y="342" width="62" height="62" fill="#FFE28A"/><rect x="203" y="342" width="62" height="62" fill="#0033FF"/>
+    </svg></div>
+    <div class="print b"><svg viewBox="0 0 300 360" role="img" aria-label="Poster reading: no algorithm, just fans">
+      <rect width="300" height="360" fill="#151C3B"/><circle cx="40" cy="330" r="90" fill="#F0452E"/>
+      <g transform="rotate(-14 150 180)" fill="#fff" font-family="Archivo" font-weight="900" font-size="54" font-stretch="62%" text-anchor="middle" letter-spacing="-2">
+        <text x="150" y="130">NO</text><text x="150" y="182">ALGORITHM.</text><text x="150" y="234" fill="#FFE28A">JUST</text><text x="150" y="286">FANS.</text></g>
+    </svg></div>
+    <div class="sticker"><span class="s">Fan</span> <span class="g">club</span></div>
+  </div>
+  <div class="copy">
+    <p class="lead">What it is</p>
+    <h2 class="big"><span class="g">Your own page.</span><br><span class="s">Your own income.</span></h2>
+    <p>No chasing the algorithm. One page where the people who already follow you can pay you for what you make.</p>
+    <a class="btn" href="#how"><i><svg><use href="#arrow"/></svg></i><b>How it works</b></a>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <p class="lead">Three steps, then the money comes to you.</p>
+  <h2 class="big"><span class="g">How it</span> <span class="s">works</span></h2>
+  <ol class="deck">
+    <li style="--i:0;--c:var(--red)"><span class="num" aria-hidden="true">1</span><h3 class="g">Register</h3><p>Email, mobile number and a username. That is all it takes.</p></li>
+    <li style="--i:1;--c:var(--blue)"><span class="num" aria-hidden="true">2</span><h3 class="g">Set up your page</h3><p>Add a photo, choose how fans can pay you and set your prices.</p></li>
+    <li style="--i:2;--c:var(--yellow)"><span class="num" aria-hidden="true">3</span><h3 class="g">Share your link</h3><p>Put it in your bio. Earnings from everything arrive in one payout.</p></li>
+  </ol>
+  <a class="btn dark" style="--c:var(--pink)" href="#register"><i><svg><use href="#arrow"/></svg></i><b>Create your page</b></a>
+  <svg class="badge" viewBox="0 0 120 120" aria-hidden="true">
+    <circle cx="60" cy="60" r="60" fill="#8E97FF"/><path id="ring" d="M60 60m-42 0a42 42 0 1 1 84 0a42 42 0 1 1-84 0" fill="none"/>
+    <text fill="#111"><textPath href="#ring">THIS IS HOW YOU GET PAID ✦</textPath></text>
+    <circle cx="60" cy="60" r="14" fill="none" stroke="#111" stroke-width="3"/><path d="M46 60h28M60 46v28" stroke="#111" stroke-width="3"/>
+  </svg>
+</section>
+
+<section class="ways" id="ways">
+  <p class="lead">Four ways to earn</p>
+  <h2 class="big"><span class="g">Pick one.</span> <span class="s">Or all four.</span></h2>
+  <ul class="cards">
+    <li style="--c:var(--blue);--r:-3deg;--y:1.5rem">
+      <svg viewBox="0 0 300 340" aria-hidden="true"><rect width="300" height="340" fill="#EAF0EE"/>
+        <g transform="rotate(-14 150 170)"><rect x="60" y="70" width="180" height="110" rx="10" fill="#111"/><rect x="60" y="130" width="180" height="110" rx="10" fill="#FF5A00"/><rect x="60" y="190" width="180" height="110" rx="10" fill="#0033FF"/><circle cx="92" cy="222" r="14" fill="#FFE28A"/><rect x="80" y="262" width="110" height="12" fill="#fff"/></g></svg>
+      <h3 class="g">Subscriptions</h3><p>Fans pay monthly for members-only posts</p></li>
+    <li style="--c:var(--pink);--r:0deg;--y:0rem">
+      <svg viewBox="0 0 300 340" aria-hidden="true"><rect width="300" height="340" fill="#FFE28A"/>
+        <path d="M40 60h170v100H100l-36 34v-34H40z" fill="#111"/><path d="M260 170H100v100h104l36 34v-34h20z" fill="#fff"/><rect x="66" y="92" width="118" height="12" fill="#FFE28A"/><rect x="66" y="118" width="70" height="12" fill="#FFE28A"/><rect x="126" y="202" width="108" height="12" fill="#111"/><rect x="126" y="228" width="60" height="12" fill="#111"/></svg>
+      <h3 class="g">Messages</h3><p>Fans pay to get a personal reply</p></li>
+    <li style="--c:var(--orange);--r:3deg;--y:.6rem">
+      <svg viewBox="0 0 300 340" aria-hidden="true"><rect width="300" height="340" fill="#111"/>
+        <circle cx="150" cy="170" r="130" fill="none" stroke="#FF7AD1" stroke-width="14"/><circle cx="150" cy="170" r="92" fill="none" stroke="#FFE28A" stroke-width="14"/><circle cx="150" cy="170" r="54" fill="#F0452E"/>
+        <text x="150" y="184" text-anchor="middle" fill="#fff" font-family="Archivo" font-weight="900" font-size="38" font-stretch="62%">LIVE</text></svg>
+      <h3 class="g">Live shows</h3><p>Ticketed streams, with tips while you are on</p></li>
+    <li style="--c:var(--yellow);--t:var(--ink);--r:-2deg;--y:2rem">
+      <svg viewBox="0 0 300 340" aria-hidden="true"><rect width="300" height="340" fill="#0033FF"/>
+        <rect x="70" y="50" width="160" height="220" fill="#fff" transform="rotate(6 150 160)"/><g transform="rotate(6 150 160)"><rect x="92" y="80" width="90" height="14" fill="#111"/><rect x="92" y="112" width="116" height="8" fill="#999"/><rect x="92" y="130" width="116" height="8" fill="#999"/><rect x="92" y="148" width="80" height="8" fill="#999"/></g>
+        <circle cx="212" cy="250" r="48" fill="#FF7AD1"/><path d="M190 250l16 16 30-34" fill="none" stroke="#111" stroke-width="10"/></svg>
+      <h3 class="g">Brand deals</h3><p>Brands send briefs and pay through your page</p></li>
+  </ul>
+</section>
+
+<section class="join" id="register">
+  <p class="lead">Ready when you are</p>
+  <h2 class="big"><span class="g">Create</span> <span class="s">your page</span></h2>
+  <p class="note">Registration is not open yet. This form is a preview and sends nothing.</p>
+  <!-- ponytail: no backend yet; replace this handler with a real POST (e.g. to form-api) when one exists -->
+  <form onsubmit="event.preventDefault(); this.querySelector('output').textContent = 'Registration is not connected yet. Nothing was sent.'">
+    <label>Email address <input type="email" name="email" autocomplete="email" required></label>
+    <label>Mobile number
+      <span class="phone">
+        <input type="text" name="cc" value="+91" inputmode="tel" autocomplete="tel-country-code" aria-label="Country code">
+        <input type="tel" name="mobile" autocomplete="tel-national" required>
+      </span>
+    </label>
+    <label>Username <input type="text" name="username" autocomplete="username" required></label>
+    <label>Referral code <small>Optional</small> <input type="text" name="referral"></label>
+    <button class="btn dark" style="--c:var(--yellow)"><i><svg><use href="#arrow"/></svg></i><b>Create your page</b></button>
+    <output aria-live="polite"></output>
+    <p class="fine">By registering you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
+  </form>
+  <dl class="facts">
+    <div><dt>Platform fee</dt> <dd>To be confirmed</dd></div>
+    <div><dt>Payout schedule</dt> <dd>To be confirmed</dd></div>
+  </dl>
+</section>
+</main>
+
+<footer>
+  <span>© 2026 Fanfare. Working name; company details to be added.</span>
+  <span><a href="#">About</a><a href="#">Contact</a><a href="#">Terms</a><a href="#">Privacy</a></span>
+</footer>
+</body>
+</html>
