@@ -6,13 +6,15 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { PGlite } from '@electric-sql/pglite';
 
-const migration = readFileSync(new URL('../supabase/migrations/0001_creators.sql', import.meta.url), 'utf8');
+const migrations = ['0001_creators.sql', '0002_creators_revoke_authenticated.sql']
+  .map((f) => readFileSync(new URL(`../supabase/migrations/${f}`, import.meta.url), 'utf8')).join('
+');
 let db;
 
 beforeEach(async () => {
   db = new PGlite();
-  await db.exec('create role anon nologin;'); // exists in every Supabase project
-  await db.exec(migration);
+  await db.exec('create role anon nologin; create role authenticated nologin;'); // both exist in every Supabase project
+  await db.exec(migrations);
   await db.exec('set role anon;');
 });
 
