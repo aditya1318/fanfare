@@ -110,6 +110,10 @@
   .phone { display: grid; grid-template-columns: 5.5rem 1fr; gap: 2px; }
   form .btn { justify-self: center; margin-top: .6rem; }
   form output { text-align: center; min-height: 1.4em; font-weight: 700; }
+  [hidden] { display: none !important; }
+  input[aria-invalid=true] { outline: 3px solid var(--yellow); }
+  form button[disabled] { opacity: .6; cursor: progress; }
+  .done { text-align: center; font: 400 clamp(1.6rem, 3.2vw, 2.4rem)/1.1 "Instrument Serif", serif; max-width: 22ch; margin: 3rem auto 0; }
   .fine { text-align: center; font-size: .95rem; }
   .facts { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem 2.5rem; margin-top: 2.5rem; font-size: 1rem; }
   .facts dt { display: inline; font-weight: 900; font-stretch: 68%; text-transform: uppercase; } .facts dd { display: inline; margin: 0; }
@@ -229,9 +233,8 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 <section class="join" id="register">
   <p class="lead">Ready when you are</p>
   <h2 class="big"><span class="g">Create</span> <span class="s">your page</span></h2>
-  <p class="note">Registration is not open yet. This form is a preview and sends nothing.</p>
-  <!-- ponytail: no backend yet; replace this handler with a real POST (e.g. to form-api) when one exists -->
-  <form onsubmit="event.preventDefault(); this.querySelector('output').textContent = 'Registration is not connected yet. Nothing was sent.'">
+  <p class="note" id="reg-note">Registration is not open yet. This form is a preview and sends nothing.</p>
+  <form id="reg-form" novalidate onsubmit="return false">
     <label>Email address <input type="email" name="email" autocomplete="email" required></label>
     <label>Mobile number
       <span class="phone">
@@ -243,6 +246,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <label>Referral code <small>Optional</small> <input type="text" name="referral"></label>
     <button class="btn dark" style="--c:var(--yellow)"><i><svg><use href="#arrow"/></svg></i><b>Create your page</b></button>
     <output aria-live="polite"></output>
+    <p class="done" id="reg-done" tabindex="-1" hidden></p>
     <p class="fine">By registering you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
   </form>
   <dl class="facts">
@@ -257,5 +261,47 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   <span>© 2026 Fanfare. Working name; company details to be added.</span>
   <span><a href="#">About</a><a href="#">Contact</a><a href="#">Terms</a><a href="#">Privacy</a></span>
 </footer>
+<script type="module">
+  import config from './config.js';
+  import { register, usernameAvailable, cleanUsername } from './register.js';
+
+  const form = document.getElementById('reg-form');
+  const out = form.querySelector('output');
+  const button = form.querySelector('button');
+  const inputFor = { email: 'email', country_code: 'cc', mobile: 'mobile', username: 'username', referral_code: 'referral' };
+  const field = (name) => form.elements[name];
+  const values = () => Object.fromEntries(['email', 'cc', 'mobile', 'username', 'referral'].map((n) => [n, field(n).value]));
+
+  function show(message, name) {
+    out.textContent = message;
+    for (const el of form.querySelectorAll('[aria-invalid]')) el.removeAttribute('aria-invalid');
+    if (name) { field(name).setAttribute('aria-invalid', 'true'); field(name).focus(); }
+  }
+
+  if (config.url) {
+    document.getElementById('reg-note').hidden = true;
+    field('username').addEventListener('change', async () => {
+      const name = field('username').value;
+      if (!cleanUsername(name)) return;
+      if (await usernameAvailable(config, name) === false) show('That username is taken. Try another.', 'username');
+      else if (out.textContent.startsWith('That username')) show('');
+    });
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!config.url) return show('Registration is not connected yet. Nothing was sent.');
+    button.disabled = true;
+    show('Registering…');
+    const r = await register(config, values());
+    button.disabled = false;
+    if (!r.ok) return show(r.message, r.field && inputFor[r.field]);
+    const done = document.getElementById('reg-done');
+    done.textContent = `You're registered as @${cleanUsername(field('username').value)}. Creator pages aren't open yet; your username is saved for you.`;
+    form.querySelectorAll('label, button, output, .fine').forEach((el) => (el.hidden = true));
+    done.hidden = false;
+    done.focus();
+  });
+</script>
 </body>
 </html>
