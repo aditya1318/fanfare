@@ -7,8 +7,7 @@ import { readFileSync } from 'node:fs';
 import { PGlite } from '@electric-sql/pglite';
 
 const migrations = ['0001_creators.sql', '0002_creators_revoke_authenticated.sql']
-  .map((f) => readFileSync(new URL(`../supabase/migrations/${f}`, import.meta.url), 'utf8')).join('
-');
+  .map((f) => readFileSync(new URL(`../supabase/migrations/${f}`, import.meta.url), 'utf8')).join('\n');
 let db;
 
 beforeEach(async () => {
