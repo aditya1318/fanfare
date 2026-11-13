@@ -1,8 +1,10 @@
 // Registration client for the landing page. Talks to Supabase's REST API
 // (PostgREST) directly; the rules it mirrors live in supabase/migrations.
 
+export const isEmail = (v) => v.length <= 254 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
+
 const RULES = {
-  email: [(v) => v.length <= 254 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v), 'Enter a valid email address, like name@example.com.'],
+  email: [isEmail, 'Enter a valid email address, like name@example.com.'],
   country_code: [(v) => /^\+\d{1,4}$/.test(v), 'Enter a country code starting with +, like +91.'],
   mobile: [(v) => /^\d{6,15}$/.test(v), 'Enter your mobile number as 6 to 15 digits.'],
   username: [(v) => /^[a-z0-9_]{3,30}$/.test(v), 'Usernames are 3 to 30 characters: lowercase letters, numbers and underscores.'],
@@ -10,9 +12,10 @@ const RULES = {
 };
 const RETRY = 'Registration failed. Check your connection and try again.';
 
-const headers = (cfg) => ({
+// Supabase request headers; token is the logged-in user's access token when there is one.
+export const headers = (cfg, token = cfg.anonKey) => ({
   apikey: cfg.anonKey,
-  Authorization: `Bearer ${cfg.anonKey}`,
+  Authorization: `Bearer ${token}`,
   'Content-Type': 'application/json',
 });
 

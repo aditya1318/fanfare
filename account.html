@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Log in – Fanfare</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  /* Same world as the landing page's register section: drenched blue, compressed caps over a condensed serif. */
+  :root { --paper: #F4F4F2; --ink: #111; --blue: #0033FF; --yellow: #FFE28A; --pad: clamp(1.25rem, 3vw, 2.5rem); }
+  * { box-sizing: border-box; margin: 0; }
+  [hidden] { display: none !important; }
+  body { min-height: 100svh; display: flex; flex-direction: column; font: 400 1.125rem/1.4 Archivo, system-ui, sans-serif;
+         background: var(--blue); color: #fff; caret-color: var(--yellow); }
+  ::selection { background: #fff; color: var(--blue); }
+  :focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+  a { color: inherit; text-underline-offset: .2em; }
+  header { padding: 1.6rem var(--pad) 0; }
+  .logo { font: italic 400 2.6rem/1 "Instrument Serif", serif; letter-spacing: -.04em; color: var(--yellow); text-decoration: none; display: inline-block; transform: rotate(-6deg); }
+  main { flex: 1; display: grid; place-content: center; padding: 3rem var(--pad) 4rem; text-align: center; }
+  .lead { font: 400 clamp(1.6rem, 3.2vw, 2.6rem)/1 "Instrument Serif", serif; letter-spacing: -.03em; }
+  h1 { font: 900 clamp(3rem, 8vw, 6.5rem)/.84 Archivo, sans-serif; font-stretch: 62%; letter-spacing: -.035em; word-spacing: .14em; text-transform: uppercase; margin: .4rem 0 1.6rem; }
+  h1 .s { font: 400 1.06em/1 "Instrument Serif", serif; letter-spacing: -.03em; }
+  p { max-width: 36ch; margin: 0 auto; text-wrap: balance; }
+  form { width: min(28rem, 100%); margin: 2rem auto 0; display: grid; gap: 1rem; text-align: left; }
+  label { display: grid; gap: .4rem; font: 900 1rem/1 Archivo, sans-serif; font-stretch: 68%; text-transform: uppercase; }
+  input { font: 400 1.1rem/1 Archivo, sans-serif; color: var(--ink); background: #fff; border: 0; border-radius: 0; padding: 1rem; width: 100%; }
+  input.code { font-size: 1.6rem; letter-spacing: .35em; text-align: center; font-variant-numeric: tabular-nums; }
+  .row { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; justify-content: center; align-items: center; }
+  .btn { display: inline-flex; gap: 2px; border: 0; padding: 0; background: none; cursor: pointer; color: var(--ink); }
+  .btn > * { background: var(--yellow); display: grid; place-items: center; height: 3rem; transition: transform .25s cubic-bezier(.16, 1, .3, 1); }
+  .btn i { width: 3rem; } .btn svg { width: 1.1rem; }
+  .btn b { padding: 0 1rem; font: 900 1.05rem/1 Archivo, sans-serif; font-stretch: 62%; letter-spacing: -.03em; text-transform: uppercase; }
+  .btn:hover i { transform: translateX(-4px); } .btn:hover b { transform: translateX(4px); }
+  .btn[disabled] { opacity: .6; cursor: progress; }
+  .link { font: inherit; color: inherit; background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: .2em; cursor: pointer; }
+  output { display: block; min-height: 1.4em; font-weight: 700; text-align: center; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="arrow" viewBox="0 0 16 16"><path d="M1 8h13M9 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.2"/></symbol></svg>
+<header><a class="logo" href="./">Fanfare</a></header>
+
+<main>
+  <section id="step-email" hidden>
+    <p class="lead">Creators</p>
+    <h1>Log <span class="s">in</span></h1>
+    <p>We'll email you a code. No password needed.</p>
+    <form id="email-form" novalidate onsubmit="return false">
+      <label>Email address <input type="email" id="email" autocomplete="email" required></label>
+      <div class="row"><button class="btn"><i><svg><use href="#arrow"/></svg></i><b>Send me a code</b></button></div>
+      <output id="email-msg" aria-live="polite"></output>
+    </form>
+    <p>New here? <a href="./#register">Register first</a>.</p>
+  </section>
+
+  <section id="step-code" hidden>
+    <p class="lead">Check your email</p>
+    <h1>Enter <span class="s">the code</span></h1>
+    <p id="code-intro"></p>
+    <form id="code-form" novalidate onsubmit="return false">
+      <label>Code <input class="code" id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="12" required></label>
+      <div class="row"><button class="btn"><i><svg><use href="#arrow"/></svg></i><b>Log in</b></button></div>
+      <output id="code-msg" aria-live="polite"></output>
+      <div class="row"><button type="button" class="link" id="resend">Send a new code</button><button type="button" class="link" id="other-email">Use a different email</button></div>
+    </form>
+  </section>
+
+  <section id="step-in" hidden>
+    <p class="lead">Welcome back</p>
+    <h1 id="in-title">You're <span class="s">in</span></h1>
+    <p id="in-text"></p>
+    <div class="row" style="margin-top:2rem"><button type="button" class="btn" id="logout"><i><svg><use href="#arrow"/></svg></i><b>Log out</b></button></div>
+  </section>
+</main>
+
+<script type="module">
+  import config from './config.js';
+  import { sendCode, verifyCode, refreshSession, logOut, claimCreator } from './auth.js';
+
+  const SESSION = 'fanfare.session';        // localStorage: stays logged in across visits
+  const PENDING = 'fanfare.pendingEmail';   // sessionStorage: set by the register form
+  const $ = (id) => document.getElementById(id);
+  const read = (key, area = localStorage) => { try { return JSON.parse(area.getItem(key)); } catch { return null; } };
+  const write = (key, value, area = localStorage) => {
+    try { value == null ? area.removeItem(key) : area.setItem(key, JSON.stringify(value)); } catch {}
+  };
+  let email = '';
+
+  function show(step, focus) {
+    for (const id of ['step-email', 'step-code', 'step-in']) $(id).hidden = id !== step;
+    if (focus) $(focus).focus();
+  }
+
+  async function busy(button, work) {
+    button.disabled = true;
+    try { return await work(); } finally { button.disabled = false; }
+  }
+
+  async function requestCode(address, msgId) {
+    $(msgId).textContent = 'Sending…';
+    const r = await sendCode(config, address);
+    if (!r.ok) { $(msgId).textContent = r.message; return; }
+    email = address.trim().toLowerCase();
+    $('code-intro').textContent = `We sent a code to ${email}. It can take a minute to arrive.`;
+    $('code-msg').textContent = '';
+    $('code').value = '';
+    show('step-code', 'code');
+  }
+
+  async function signedIn(session) {
+    show('step-in');
+    $('in-text').textContent = 'Loading your account…';
+    const r = await claimCreator(config, session);
+    if (!r.ok && r.expired) return loggedOut(r.message);
+    if (!r.ok) { $('in-text').textContent = r.message; return; }
+    if (r.username) {
+      $('in-text').textContent = `Logged in as @${r.username}. Your email is verified, so your username is yours.`;
+    } else {
+      $('in-text').innerHTML = 'You’re logged in, but no creator registration uses this email. <a href="./#register">Register first</a>.';
+    }
+  }
+
+  function loggedOut(message) {
+    write(SESSION, null);
+    $('email-msg').textContent = message;
+    show('step-email', 'email');
+  }
+
+  $('email-form').addEventListener('submit', (e) => busy(e.submitter ?? e.target.querySelector('button'), () => requestCode($('email').value, 'email-msg')));
+  $('code-form').addEventListener('submit', (e) => busy(e.submitter ?? e.target.querySelector('button'), async () => {
+    $('code-msg').textContent = 'Checking…';
+    const r = await verifyCode(config, email, $('code').value);
+    if (!r.ok) { $('code-msg').textContent = r.message; $('code').focus(); return; }
+    write(SESSION, r.session);
+    await signedIn(r.session);
+  }));
+  $('resend').addEventListener('click', (e) => busy(e.target, () => requestCode(email, 'code-msg')));
+  $('other-email').addEventListener('click', () => { $('email-msg').textContent = ''; show('step-email', 'email'); });
+  $('logout').addEventListener('click', (e) => busy(e.target.closest('button'), async () => {
+    const session = read(SESSION);
+    loggedOut('You are logged out.');
+    if (session) await logOut(config, session);
+  }));
+
+  (async () => {
+    if (!config.url) { $('email-msg').textContent = 'Logins are not open yet.'; return show('step-email'); }
+    let session = read(SESSION);
+    if (session && session.expires_at - 60 < Date.now() / 1000) {
+      const r = await refreshSession(config, session);
+      if (r.ok) write(SESSION, (session = r.session));
+      else if (r.expired) { write(SESSION, (session = null)); }
+      // offline: keep the old session; the account call below reports the problem
+    }
+    if (session) return signedIn(session);
+
+    const pending = read(PENDING, sessionStorage);
+    write(PENDING, null, sessionStorage);
+    show('step-email');
+    if (pending) {
+      $('email').value = pending;
+      await requestCode(pending, 'email-msg');
+    }
+  })();
+</script>
+</body>
+</html>

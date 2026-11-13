@@ -113,7 +113,6 @@
   [hidden] { display: none !important; }
   input[aria-invalid=true] { outline: 3px solid var(--yellow); }
   form button[disabled] { opacity: .6; cursor: progress; }
-  .done { text-align: center; font: 400 clamp(1.6rem, 3.2vw, 2.4rem)/1.1 "Instrument Serif", serif; max-width: 22ch; margin: 3rem auto 0; }
   .fine { text-align: center; font-size: .95rem; }
   .facts { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem 2.5rem; margin-top: 2.5rem; font-size: 1rem; }
   .facts dt { display: inline; font-weight: 900; font-stretch: 68%; text-transform: uppercase; } .facts dd { display: inline; margin: 0; }
@@ -148,7 +147,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 <header>
   <span></span>
   <nav class="box"><a href="#about">About</a><a href="#how">How it works</a><a href="#ways">Ways to earn</a></nav>
-  <div class="box"><a class="dot" href="#register">Register</a></div>
+  <div class="box"><a href="account.html">Log in</a><a class="dot" href="#register">Register</a></div>
 </header>
 
 <main>
@@ -246,7 +245,6 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <label>Referral code <small>Optional</small> <input type="text" name="referral"></label>
     <button class="btn dark" style="--c:var(--yellow)"><i><svg><use href="#arrow"/></svg></i><b>Create your page</b></button>
     <output aria-live="polite"></output>
-    <p class="done" id="reg-done" tabindex="-1" hidden></p>
     <p class="fine">By registering you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
   </form>
   <dl class="facts">
@@ -296,11 +294,9 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     const r = await register(config, values());
     button.disabled = false;
     if (!r.ok) return show(r.message, r.field && inputFor[r.field]);
-    const done = document.getElementById('reg-done');
-    done.textContent = `You're registered as @${cleanUsername(field('username').value)}. Creator pages aren't open yet; your username is saved for you.`;
-    form.querySelectorAll('label, button, output, .fine').forEach((el) => (el.hidden = true));
-    done.hidden = false;
-    done.focus();
+    // Verify the email next: the account page sends the code and logs them in.
+    try { sessionStorage.setItem('fanfare.pendingEmail', JSON.stringify(field('email').value)); } catch {}
+    location.href = 'account.html';
   });
 </script>
 </body>
