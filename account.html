@@ -108,7 +108,7 @@
     const r = await sendCode(config, address, location.origin + location.pathname);
     if (!r.ok) { $(msgId).textContent = r.message; return; }
     email = address.trim().toLowerCase();
-    $('code-intro').textContent = `We sent a login email to ${email}. Open the link in it, or type the code if it has one. It can take a minute to arrive.`;
+    $('code-intro').textContent = `We sent a login email to ${email}. Open its link on this device to log in here; opening it on another device logs in there instead. It can take a minute to arrive.`;
     $('code-msg').textContent = '';
     $('code').value = '';
     show('step-code', 'code');
