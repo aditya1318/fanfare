@@ -1,6 +1,6 @@
 // Login for creators: a one-time code sent to their email by Supabase Auth.
 // Talks to Supabase Auth's HTTP API directly, like register.js does for signup.
-import { headers, isEmail } from './register.js';
+import { headers, isEmail } from './register.js?v=5';
 
 const RETRY = 'Something went wrong. Check your connection and try again.';
 const MESSAGES = {

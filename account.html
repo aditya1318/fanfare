@@ -46,7 +46,7 @@
 <header><a class="logo" href="./">Fanfare</a></header>
 
 <main>
-  <section id="step-email" hidden>
+  <section id="step-email">
     <p class="lead">Creators</p>
     <h1>Log <span class="s">in</span></h1>
     <p>We'll email you a login link. No password needed.</p>
@@ -79,8 +79,10 @@
 </main>
 
 <script type="module">
-  import config from './config.js';
-  import { sendCode, verifyCode, refreshSession, logOut, claimCreator, sessionFromLink } from './auth.js';
+  // Bump ?v= on every import (here, account.html/index.html and auth.js) whenever a .js file changes:
+  // GitHub Pages lets browsers cache files for 10 minutes, and a stale module breaks the page.
+  import config from './config.js?v=5';
+  import { sendCode, verifyCode, refreshSession, logOut, claimCreator, sessionFromLink } from './auth.js?v=5';
 
   const SESSION = 'fanfare.session';        // localStorage: stays logged in across visits
   const PENDING = 'fanfare.pendingEmail';   // sessionStorage: set by the register form
