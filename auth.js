@@ -39,10 +39,12 @@ function toSession(body) {
   };
 }
 
-export async function sendCode(cfg, email, fetchFn = fetch) {
+// redirectTo: where the email's sign-in link should land (must be allowed in Supabase's URL settings).
+export async function sendCode(cfg, email, redirectTo, fetchFn = fetch) {
   email = cleanEmail(email);
   if (!isEmail(email)) return { ok: false, message: MESSAGES.email_address_invalid };
-  const r = await post(fetchFn, `${cfg.url}/auth/v1/otp`, {
+  const query = redirectTo ? `?redirect_to=${encodeURIComponent(redirectTo)}` : '';
+  const r = await post(fetchFn, `${cfg.url}/auth/v1/otp${query}`, {
     headers: headers(cfg),
     body: JSON.stringify({ email, create_user: true }),
   });
@@ -57,6 +59,19 @@ export async function verifyCode(cfg, email, code, fetchFn = fetch) {
     body: JSON.stringify({ type: 'email', email: cleanEmail(email), token }),
   });
   return r.ok ? { ok: true, session: toSession(r.body) } : failure(r);
+}
+
+// After clicking the email's sign-in link, Supabase redirects here with the
+// session (or an error) in the URL fragment. Returns null when there is neither.
+export function sessionFromLink(hash) {
+  const p = new URLSearchParams(hash.replace(/^#/, ''));
+  if (p.get('access_token') && p.get('refresh_token')) {
+    return { ok: true, session: toSession({ access_token: p.get('access_token'), refresh_token: p.get('refresh_token'),
+      expires_at: p.has('expires_at') ? Number(p.get('expires_at')) : undefined, expires_in: Number(p.get('expires_in')) }) };
+  }
+  if (p.get('error_code') === 'otp_expired') return { ok: false, message: 'That sign-in link has expired or was already used. Send a new one.' };
+  if (p.get('error')) return { ok: false, message: RETRY };
+  return null;
 }
 
 // { ok: true, session }, or { ok: false, expired } where expired means log in again

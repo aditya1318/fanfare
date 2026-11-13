@@ -2,7 +2,7 @@
 // Supabase Auth and the REST API. Error bodies mirror what Supabase Auth returns.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { sendCode, verifyCode, refreshSession, logOut, claimCreator } from '../auth.js';
+import { sendCode, verifyCode, refreshSession, logOut, claimCreator, sessionFromLink } from '../auth.js';
 
 const cfg = { url: 'https://proj.supabase.co', anonKey: 'anon-key' };
 const session = { access_token: 'user-token', refresh_token: 'refresh-1', expires_at: 2000000000 };
@@ -20,7 +20,7 @@ const authError = (status, error_code, msg = 'x') => fakeFetch(status, { code: s
 
 test('sends a sign-in code to the cleaned-up email', async () => {
   const f = fakeFetch(200, {});
-  assert.deepEqual(await sendCode(cfg, ' Maya@Example.com ', f), { ok: true });
+  assert.deepEqual(await sendCode(cfg, ' Maya@Example.com ', null, f), { ok: true });
   const [call] = f.calls;
   assert.equal(call.url, 'https://proj.supabase.co/auth/v1/otp');
   assert.equal(call.init.method, 'POST');
@@ -30,18 +30,18 @@ test('sends a sign-in code to the cleaned-up email', async () => {
 
 test('an invalid email is caught before sending', async () => {
   const f = fakeFetch(200, {});
-  const r = await sendCode(cfg, 'nope', f);
+  const r = await sendCode(cfg, 'nope', null, f);
   assert.equal(r.ok, false);
   assert.equal(f.calls.length, 0);
 });
 
 test('asking for codes too often says to wait', async () => {
-  const r = await sendCode(cfg, 'maya@example.com', authError(429, 'over_email_send_rate_limit'));
+  const r = await sendCode(cfg, 'maya@example.com', null, authError(429, 'over_email_send_rate_limit'));
   assert.match(r.message, /wait/i);
 });
 
 test('an address Supabase will not email yet is explained', async () => {
-  const r = await sendCode(cfg, 'maya@example.com', authError(400, 'email_address_not_authorized'));
+  const r = await sendCode(cfg, 'maya@example.com', null, authError(400, 'email_address_not_authorized'));
   assert.match(r.message, /can't send/i);
 });
 
@@ -68,7 +68,7 @@ test('a code that is not digits is caught before sending', async () => {
 });
 
 test('network failures give a retry message', async () => {
-  const r = await sendCode(cfg, 'maya@example.com', async () => { throw new TypeError('offline'); });
+  const r = await sendCode(cfg, 'maya@example.com', null, async () => { throw new TypeError('offline'); });
   assert.match(r.message, /try again/i);
 });
 
@@ -116,4 +116,25 @@ test('a rejected login token is reported as expired', async () => {
 
 test('a login with no registration comes back without a username', async () => {
   assert.deepEqual(await claimCreator(cfg, session, fakeFetch(200, null)), { ok: true, username: null });
+});
+
+test('the sign-in link lands back on the page that asked for it', async () => {
+  const f = fakeFetch(200, {});
+  await sendCode(cfg, 'maya@example.com', 'https://site.test/fanfare/account.html', f);
+  assert.equal(f.calls[0].url, 'https://proj.supabase.co/auth/v1/otp?redirect_to=https%3A%2F%2Fsite.test%2Ffanfare%2Faccount.html');
+});
+
+test('a clicked sign-in link gives a session', () => {
+  const r = sessionFromLink('#access_token=user-token&expires_at=2000000000&expires_in=3600&refresh_token=refresh-1&token_type=bearer&type=magiclink');
+  assert.deepEqual(r, { ok: true, session });
+});
+
+test('an expired sign-in link says to send a new one', () => {
+  const r = sessionFromLink('#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired');
+  assert.equal(r.ok, false);
+  assert.match(r.message, /expired/);
+});
+
+test('a page opened normally has no link session', () => {
+  assert.equal(sessionFromLink(''), null);
 });

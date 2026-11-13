@@ -49,10 +49,10 @@
   <section id="step-email" hidden>
     <p class="lead">Creators</p>
     <h1>Log <span class="s">in</span></h1>
-    <p>We'll email you a code. No password needed.</p>
+    <p>We'll email you a login link. No password needed.</p>
     <form id="email-form" novalidate onsubmit="return false">
       <label>Email address <input type="email" id="email" autocomplete="email" required></label>
-      <div class="row"><button class="btn"><i><svg><use href="#arrow"/></svg></i><b>Send me a code</b></button></div>
+      <div class="row"><button class="btn"><i><svg><use href="#arrow"/></svg></i><b>Email me a link</b></button></div>
       <output id="email-msg" aria-live="polite"></output>
     </form>
     <p>New here? <a href="./#register">Register first</a>.</p>
@@ -60,13 +60,13 @@
 
   <section id="step-code" hidden>
     <p class="lead">Check your email</p>
-    <h1>Enter <span class="s">the code</span></h1>
+    <h1>Open <span class="s">the link</span></h1>
     <p id="code-intro"></p>
     <form id="code-form" novalidate onsubmit="return false">
-      <label>Code <input class="code" id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="12" required></label>
+      <label>Or type the code <input class="code" id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="12" required></label>
       <div class="row"><button class="btn"><i><svg><use href="#arrow"/></svg></i><b>Log in</b></button></div>
       <output id="code-msg" aria-live="polite"></output>
-      <div class="row"><button type="button" class="link" id="resend">Send a new code</button><button type="button" class="link" id="other-email">Use a different email</button></div>
+      <div class="row"><button type="button" class="link" id="resend">Send a new email</button><button type="button" class="link" id="other-email">Use a different email</button></div>
     </form>
   </section>
 
@@ -80,7 +80,7 @@
 
 <script type="module">
   import config from './config.js';
-  import { sendCode, verifyCode, refreshSession, logOut, claimCreator } from './auth.js';
+  import { sendCode, verifyCode, refreshSession, logOut, claimCreator, sessionFromLink } from './auth.js';
 
   const SESSION = 'fanfare.session';        // localStorage: stays logged in across visits
   const PENDING = 'fanfare.pendingEmail';   // sessionStorage: set by the register form
@@ -103,10 +103,10 @@
 
   async function requestCode(address, msgId) {
     $(msgId).textContent = 'Sending…';
-    const r = await sendCode(config, address);
+    const r = await sendCode(config, address, location.origin + location.pathname);
     if (!r.ok) { $(msgId).textContent = r.message; return; }
     email = address.trim().toLowerCase();
-    $('code-intro').textContent = `We sent a code to ${email}. It can take a minute to arrive.`;
+    $('code-intro').textContent = `We sent a login email to ${email}. Open the link in it, or type the code if it has one. It can take a minute to arrive.`;
     $('code-msg').textContent = '';
     $('code').value = '';
     show('step-code', 'code');
@@ -149,6 +149,10 @@
 
   (async () => {
     if (!config.url) { $('email-msg').textContent = 'Logins are not open yet.'; return show('step-email'); }
+    const link = sessionFromLink(location.hash);
+    if (link) history.replaceState(null, '', location.pathname); // keep tokens out of history and copied links
+    if (link?.ok) { write(SESSION, link.session); return signedIn(link.session); }
+    if (link) { $('email-msg').textContent = link.message; return show('step-email', 'email'); }
     let session = read(SESSION);
     if (session && session.expires_at - 60 < Date.now() / 1000) {
       const r = await refreshSession(config, session);
