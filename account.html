@@ -38,6 +38,31 @@
   .btn[disabled] { opacity: .6; cursor: progress; }
   .link { font: inherit; color: inherit; background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: .2em; cursor: pointer; }
   output { display: block; min-height: 1.4em; font-weight: 700; text-align: center; }
+  /* Page editor */
+  .editor { width: min(36rem, 100%); margin-top: 2.5rem; gap: 1.4rem; }
+  .editor h2 { font: 900 2.2rem/.9 Archivo, sans-serif; font-stretch: 62%; letter-spacing: -.03em; text-transform: uppercase; text-align: center; }
+  .editor h2 .s { font: 400 1.08em/1 "Instrument Serif", serif; text-transform: none; }
+  textarea { font: 400 1.05rem/1.4 Archivo, sans-serif; color: var(--ink); background: #fff; border: 0; border-radius: 0; padding: .9rem 1rem; width: 100%; resize: vertical; }
+  label small { font: 400 .95rem/1 "Instrument Serif", serif; text-transform: none; letter-spacing: 0; }
+  .photo { display: flex; align-items: center; gap: 1.2rem; }
+  .photo .frame { flex: none; width: 6.5rem; aspect-ratio: 1; background: #fff; padding: .35rem .35rem 1.1rem; transform: rotate(-4deg); box-shadow: 0 12px 24px -14px #0008; }
+  .photo .frame img, .photo .frame span { display: grid; place-items: center; width: 100%; height: 100%; object-fit: cover; background: var(--yellow); color: var(--ink);
+    font: 900 2.4rem/1 Archivo, sans-serif; font-stretch: 62%; text-transform: uppercase; }
+  .file { cursor: pointer; text-decoration: underline; text-underline-offset: .2em; font: 400 1.05rem/1.3 Archivo, sans-serif; text-transform: none; }
+  .file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .file:focus-within { outline: 3px solid var(--yellow); outline-offset: 3px; }
+  fieldset { border: 0; padding: 0; display: grid; gap: .6rem; }
+  legend { font: 900 1rem/1 Archivo, sans-serif; font-stretch: 68%; text-transform: uppercase; margin-bottom: .7rem; }
+  .line { display: grid; grid-template-columns: 1fr minmax(0, 11rem); gap: .6rem 1rem; align-items: center; background: #ffffff14; padding: .8rem 1rem; }
+  .toggle { display: flex; align-items: center; gap: .7rem; font: 700 1.1rem/1.2 Archivo, sans-serif; text-transform: none; cursor: pointer; }
+  .toggle input { width: 1.3rem; height: 1.3rem; accent-color: var(--yellow); }
+  .line small, .hint { font: 400 .95rem/1.3 Archivo, sans-serif; text-transform: none; opacity: .85; }
+  .price { display: flex; align-items: center; gap: .4rem; font: 700 1.1rem/1 Archivo, sans-serif; text-transform: none; }
+  .price input { width: 6.5rem; padding: .65rem .7rem; font-variant-numeric: tabular-nums; }
+  .price small { white-space: nowrap; }
+  input[aria-invalid=true], textarea[aria-invalid=true] { outline: 3px solid var(--yellow); }
+  .publish { border-top: 1px solid #ffffff40; padding-top: 1.2rem; }
+  @media (max-width: 480px) { .line { grid-template-columns: 1fr; } }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
@@ -74,15 +99,43 @@
     <p class="lead">Welcome back</p>
     <h1 id="in-title">You're <span class="s">in</span></h1>
     <p id="in-text"></p>
+    <form id="page-form" class="editor" novalidate onsubmit="return false" hidden>
+      <h2>Your <span class="s">page</span></h2>
+      <div class="photo">
+        <div class="frame"><img id="avatar" alt="Your photo" hidden><span id="avatar-empty" aria-hidden="true"></span></div>
+        <div>
+          <label class="file">Choose a photo <input type="file" id="photo" accept="image/jpeg,image/png,image/webp,image/*"></label>
+          <p class="hint" id="photo-msg" aria-live="polite">Square photos work best.</p>
+        </div>
+      </div>
+      <label>Name on your page <input id="display_name" maxlength="60" autocomplete="name" required></label>
+      <label>About you <small id="bio-count">0 / 280</small><textarea id="bio" rows="3" maxlength="280"></textarea></label>
+      <fieldset>
+        <legend>Ways fans can pay you</legend>
+        <div class="line"><label class="toggle"><input type="checkbox" id="sub_on"> Subscriptions</label>
+          <label class="price">&#8377; <input id="sub_price" inputmode="numeric" aria-label="Monthly price in rupees"> <small>/ month</small></label></div>
+        <div class="line"><label class="toggle"><input type="checkbox" id="msg_on"> Paid messages</label>
+          <label class="price">&#8377; <input id="msg_price" inputmode="numeric" aria-label="Price per message in rupees"> <small>/ message</small></label></div>
+        <div class="line"><label class="toggle"><input type="checkbox" id="live_on"> Live shows</label>
+          <label class="price">&#8377; <input id="live_price" inputmode="numeric" aria-label="Ticket price in rupees, 0 for free"> <small>/ ticket</small></label>
+          <small>Set 0 for free shows where fans can tip.</small></div>
+        <div class="line"><label class="toggle"><input type="checkbox" id="deals_on"> Brand deals</label>
+          <small>Brands send you a brief and you agree the fee per deal.</small></div>
+      </fieldset>
+      <label class="toggle publish"><input type="checkbox" id="published"> Show my page publicly</label>
+      <div class="row"><button class="btn"><i><svg><use href="#arrow"/></svg></i><b>Save page</b></button><a id="view" href="#" hidden>View your page</a></div>
+      <output id="page-msg" aria-live="polite"></output>
+    </form>
     <div class="row" style="margin-top:2rem"><button type="button" class="btn" id="logout"><i><svg><use href="#arrow"/></svg></i><b>Log out</b></button></div>
   </section>
 </main>
 
 <script type="module">
-  // Bump ?v= on every import (here, account.html/index.html and auth.js) whenever a .js file changes:
+  // Bump ?v= on every versioned import (index.html, account.html, creator.html, auth.js, page.js) whenever a .js file changes:
   // GitHub Pages lets browsers cache files for 10 minutes, and a stale module breaks the page.
-  import config from './config.js?v=5';
-  import { sendCode, verifyCode, refreshSession, logOut, claimCreator, sessionFromLink } from './auth.js?v=5';
+  import config from './config.js?v=7';
+  import { sendCode, verifyCode, refreshSession, logOut, claimCreator, sessionFromLink } from './auth.js?v=7';
+  import { getMyPage, savePage, uploadAvatar, avatarUrl } from './page.js?v=7';
 
   const SESSION = 'fanfare.session';        // localStorage: stays logged in across visits
   const PENDING = 'fanfare.pendingEmail';   // sessionStorage: set by the register form
@@ -122,12 +175,93 @@
     if (!r.ok) { $('in-text').textContent = r.message; return; }
     if (r.username) {
       $('in-text').textContent = `Logged in as @${r.username}. Your email is verified, so your username is yours.`;
+      await openEditor(session);
     } else {
       $('in-text').innerHTML = 'You’re logged in, but no creator registration uses this email. <a href="./#register">Register first</a>.';
     }
   }
 
+  // ---- Page editor ----
+  const FIELDS = ['display_name', 'bio', 'sub_price', 'msg_price', 'live_price'];
+  const SWITCHES = ['published', 'sub_on', 'msg_on', 'live_on', 'deals_on'];
+  let me = null; // { username, avatar_version }
+
+  function showAvatar() {
+    const url = avatarUrl(config, me.username, me.avatar_version);
+    $('avatar').hidden = !url;
+    $('avatar-empty').hidden = !!url;
+    if (url) $('avatar').src = url;
+    $('avatar-empty').textContent = ($('display_name').value || me.username).trim().charAt(0);
+  }
+
+  async function openEditor(session) {
+    const r = await getMyPage(config, session);
+    if (!r.ok && r.expired) return loggedOut('Your login has ended. Log in again.');
+    if (!r.ok) { $('in-text').textContent += ` We couldn\u2019t load your page settings. ${r.message}`; return; }
+    if (!r.page) return;
+    const p = r.page;
+    me = { username: p.username, avatar_version: p.avatar_version ?? null };
+    for (const f of FIELDS) $(f).value = p[f] ?? '';
+    for (const s of SWITCHES) $(s).checked = !!p[s];
+    if (!('display_name' in p)) $('live_price').value = '0';
+    $('bio-count').textContent = `${$('bio').value.length} / 280`;
+    $('view').href = `creator.html?u=${encodeURIComponent(me.username)}`;
+    $('view').hidden = !p.published;
+    showAvatar();
+    $('page-form').hidden = false;
+  }
+
+  // Phone photos are often 5 MB or more: scale to 640px and re-encode as JPEG before upload.
+  async function shrink(file) {
+    const img = await createImageBitmap(file);
+    const scale = Math.min(1, 640 / Math.max(img.width, img.height));
+    const canvas = Object.assign(document.createElement('canvas'), { width: Math.round(img.width * scale), height: Math.round(img.height * scale) });
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    return new Promise((done) => canvas.toBlob(done, 'image/jpeg', 0.85));
+  }
+
+  $('photo').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    $('photo-msg').textContent = 'Uploading\u2026';
+    let blob;
+    try { blob = await shrink(file); } catch { $('photo-msg').textContent = 'That file isn\u2019t a photo we can read. Try a JPEG or PNG.'; return; }
+    const r = await uploadAvatar(config, read(SESSION), me.username, blob);
+    if (!r.ok) { $('photo-msg').textContent = r.message; return; }
+    me.avatar_version = Date.now();
+    showAvatar();
+    // Save straight away so the public page shows the new photo without a second step.
+    const saved = await saveForm();
+    $('photo-msg').textContent = saved ? 'Photo updated.' : 'Photo uploaded. Fix the highlighted field and save to show it.';
+  });
+
+  $('bio').addEventListener('input', () => ($('bio-count').textContent = `${$('bio').value.length} / 280`));
+  $('display_name').addEventListener('input', () => me && showAvatar());
+
+  $('page-form').addEventListener('submit', (e) => busy(e.submitter ?? e.target.querySelector('button'), saveForm));
+
+  // Saves the editor as it stands; true when saved.
+  async function saveForm() {
+    const form = { avatar_version: me.avatar_version };
+    for (const f of FIELDS) form[f] = $(f).value;
+    for (const s of SWITCHES) form[s] = $(s).checked;
+    for (const el of $('page-form').querySelectorAll('[aria-invalid]')) el.removeAttribute('aria-invalid');
+    $('page-msg').textContent = 'Saving\u2026';
+    const r = await savePage(config, read(SESSION), form);
+    if (!r.ok && r.expired) return loggedOut('Your login has ended. Log in again.');
+    if (!r.ok) {
+      $('page-msg').textContent = r.message;
+      if (r.field) { $(r.field).setAttribute('aria-invalid', 'true'); $(r.field).focus(); }
+      return false;
+    }
+    $('view').hidden = !form.published;
+    $('page-msg').textContent = form.published ? 'Saved. Your page is public.' : 'Saved. Your page is hidden until you choose to show it.';
+    return true;
+  }
+
   function loggedOut(message) {
+    $('page-form').hidden = true;
     write(SESSION, null);
     $('email-msg').textContent = message;
     show('step-email', 'email');

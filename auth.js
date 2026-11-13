@@ -1,6 +1,6 @@
 // Login for creators: a one-time code sent to their email by Supabase Auth.
 // Talks to Supabase Auth's HTTP API directly, like register.js does for signup.
-import { headers, isEmail } from './register.js?v=5';
+import { headers, isEmail } from './register.js?v=7';
 
 const RETRY = 'Something went wrong. Check your connection and try again.';
 const MESSAGES = {
@@ -13,7 +13,7 @@ const MESSAGES = {
 
 const cleanEmail = (v) => v.trim().toLowerCase();
 
-async function post(fetchFn, url, init) {
+export async function post(fetchFn, url, init) {
   try {
     const res = await fetchFn(url, { method: 'POST', ...init });
     return { ok: res.ok, status: res.status, body: res.status === 204 ? null : await res.json().catch(() => null) };

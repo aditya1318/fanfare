@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fanfare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  /* A creator's page: the landing page's poster world, with the creator as the headline. */
+  :root { --paper: #F4F4F2; --ink: #111; --blue: #0033FF; --pink: #FF7AD1; --orange: #FF5A00; --yellow: #FFE28A;
+          --pad: clamp(1.25rem, 3vw, 2.5rem); }
+  * { box-sizing: border-box; margin: 0; }
+  [hidden] { display: none !important; }
+  body { font: 400 1.125rem/1.4 Archivo, system-ui, sans-serif; background: var(--paper); color: var(--ink); overflow-x: clip; caret-color: var(--blue); }
+  ::selection { background: var(--blue); color: #fff; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+  a { color: inherit; }
+  .g { font: 900 1em/1 Archivo, sans-serif; font-stretch: 62%; letter-spacing: -.035em; word-spacing: .14em; text-transform: uppercase; }
+  .s { font: 400 1em/1 "Instrument Serif", serif; letter-spacing: -.03em; }
+
+  header { display: flex; justify-content: space-between; align-items: flex-start; padding: 1.6rem var(--pad) 0; }
+  .logo { font: italic 400 2.6rem/1 "Instrument Serif", serif; letter-spacing: -.04em; color: var(--blue); text-decoration: none; display: inline-block; transform: rotate(-6deg); }
+  .box { background: #fff; padding: .95rem 1.2rem .85rem; font: 900 .95rem/1 Archivo, sans-serif; font-stretch: 68%; letter-spacing: -.02em; text-transform: uppercase; text-decoration: none; }
+  .box:hover { color: var(--blue); }
+
+  .hero { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); gap: 3rem; align-items: center; padding: clamp(3rem, 8vw, 6rem) var(--pad); max-width: 76rem; margin: 0 auto; }
+  .print { background: #fff; padding: 3% 3% 12%; transform: rotate(-4deg); box-shadow: 0 18px 40px -22px #0006; max-width: 26rem; justify-self: center; width: 100%; }
+  .print img, .print .initial { display: grid; place-items: center; width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--blue); color: var(--yellow); font-size: clamp(6rem, 18vw, 12rem); }
+  .who { text-align: center; }
+  .handle { font: italic 400 clamp(1.5rem, 3vw, 2.4rem)/1 "Instrument Serif", serif; color: var(--blue); }
+  h1.g { font-size: clamp(3.2rem, 8.4vw, 7.5rem); line-height: .84; margin: .5rem 0 1.4rem; text-wrap: balance; overflow-wrap: anywhere; }
+  .bio { font: 400 clamp(1.3rem, 2.2vw, 1.75rem)/1.15 "Instrument Serif", serif; max-width: 30ch; margin: 0 auto; text-wrap: pretty; }
+
+  .ways { padding: 0 var(--pad) clamp(4rem, 9vw, 7rem); }
+  .ways > h2 { text-align: center; font-size: clamp(2.4rem, 6vw, 4.5rem); line-height: .86; }
+  .cards { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.5rem; max-width: 70rem; margin: 2.5rem auto 0; }
+  .cards li { background: var(--c); color: var(--t, #fff); padding: 1.6rem 1.4rem 1.4rem; text-align: center; transform: rotate(var(--r)); display: grid; gap: .6rem; align-content: start; }
+  .cards h3 { font-size: clamp(2rem, 3.4vw, 2.8rem); }
+  .cards .amount { font: 400 clamp(1.5rem, 2.4vw, 2rem)/1 "Instrument Serif", serif; }
+  .cards p { font-size: 1rem; }
+  .soon { margin-top: .6rem; justify-self: center; display: inline-flex; gap: 2px; opacity: .9; }
+  .soon > * { background: var(--ink); color: #fff; height: 2.6rem; display: grid; place-items: center; padding: 0 .9rem; font: 900 .95rem/1 Archivo, sans-serif; font-stretch: 62%; text-transform: uppercase; }
+  .note { text-align: center; margin-top: 2rem; font-size: 1rem; }
+
+  .empty { min-height: 60vh; display: grid; place-content: center; text-align: center; padding: 3rem var(--pad); gap: 1rem; }
+  .empty h1 { font-size: clamp(3rem, 9vw, 6rem); margin: 0; }
+
+  footer { background: var(--ink); color: var(--paper); padding: 2rem var(--pad); font-size: .95rem; text-align: center; }
+
+  @media (max-width: 760px) { .hero { grid-template-columns: 1fr; gap: 2.5rem; } .print { max-width: 18rem; } }
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="./">Fanfare</a>
+  <a class="box" href="./#register">Create your page</a>
+</header>
+
+<main>
+  <p class="empty" id="loading" aria-live="polite">Loading…</p>
+
+  <section class="empty" id="missing" hidden>
+    <h1 class="g">No page <span class="s">here</span></h1>
+    <p id="missing-text">There's no published Fanfare page at this address.</p>
+    <p><a href="./">Go to the Fanfare home page</a></p>
+  </section>
+
+  <article id="page" hidden>
+    <section class="hero">
+      <div class="print"><img id="photo" alt="" hidden><span class="initial g" id="initial" aria-hidden="true"></span></div>
+      <div class="who">
+        <p class="handle" id="handle"></p>
+        <h1 class="g" id="name"></h1>
+        <p class="bio" id="bio"></p>
+      </div>
+    </section>
+
+    <section class="ways" id="ways">
+      <h2><span class="g">Support</span> <span class="s" id="first-name"></span></h2>
+      <ul class="cards" id="cards"></ul>
+      <p class="note">Payments open soon. Nothing can be bought on this page yet.</p>
+    </section>
+  </article>
+</main>
+
+<footer>Made with Fanfare. <a href="./">Create your own page</a>.</footer>
+
+<template id="card">
+  <li><h3 class="g"></h3><p class="amount"></p><p class="what"></p><span class="soon"><span aria-hidden="true">&rarr;</span><span class="label">Opens soon</span></span></li>
+</template>
+
+<script type="module">
+  // Bump ?v= on every versioned import (index.html, account.html, creator.html, auth.js, page.js) whenever a .js file changes.
+  import config from './config.js?v=7';
+  import { getPublicPage, avatarUrl } from './page.js?v=7';
+
+  const $ = (id) => document.getElementById(id);
+  const rupees = (n) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
+  // Order, colours and wording for each line; prices come from the page.
+  const LINES = [
+    ['subscriptions', 'Subscribe', (l) => `${rupees(l.price)} a month`, 'Members-only posts, every month.', 'var(--blue)', '#fff', '-2deg'],
+    ['messages', 'Message', (l) => `${rupees(l.price)} a message`, 'Ask a question and get a personal reply.', 'var(--pink)', 'var(--ink)', '1.5deg'],
+    ['live', 'Live shows', (l) => (l.price ? `${rupees(l.price)} a ticket` : 'Free, with tips'), 'Watch live streams as they happen.', 'var(--orange)', '#fff', '-1deg'],
+    ['brand_deals', 'Brand deals', () => 'Send a brief', 'Brands: propose a collaboration.', 'var(--yellow)', 'var(--ink)', '2deg'],
+  ];
+
+  function missing(text) {
+    $('loading').hidden = true;
+    if (text) $('missing-text').textContent = text;
+    $('missing').hidden = false;
+  }
+
+  const username = new URLSearchParams(location.search).get('u')?.trim();
+  if (!username) missing('This link is missing a username.');
+  else if (!config.url) missing('Creator pages are not open yet.');
+  else {
+    const r = await getPublicPage(config, username);
+    if (!r.ok) missing(r.message);
+    else if (!r.page) missing();
+    else {
+      const p = r.page;
+      document.title = `${p.display_name} (@${p.username}) on Fanfare`;
+      $('handle').textContent = `@${p.username}`;
+      $('name').textContent = p.display_name;
+      $('bio').textContent = p.bio ?? '';
+      $('first-name').textContent = p.display_name.split(' ')[0];
+      const url = avatarUrl(config, p.username, p.avatar_version);
+      $('initial').textContent = p.display_name.charAt(0);
+      $('initial').hidden = !!url;
+      if (url) Object.assign($('photo'), { src: url, alt: p.display_name, hidden: false });
+
+      for (const [key, title, amount, what, c, t, rot] of LINES) {
+        const line = p.lines?.[key];
+        if (!line) continue;
+        const li = $('card').content.firstElementChild.cloneNode(true);
+        li.style.cssText = `--c:${c};--t:${t};--r:${rot}`;
+        li.querySelector('h3').textContent = title;
+        li.querySelector('.amount').textContent = amount(line);
+        li.querySelector('.what').textContent = what;
+        $('cards').append(li);
+      }
+      $('ways').hidden = !$('cards').children.length;
+      $('loading').hidden = true;
+      $('page').hidden = false;
+    }
+  }
+</script>
+</body>
+</html>
